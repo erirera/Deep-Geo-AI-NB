@@ -12,10 +12,11 @@ The goal is to automatically identify zones where current geology maps might be 
 
 - **Dark Mode UI**: A premium, aesthetics-forward interface using glassmorphism.
 - **Interactive Leaflet Map**: Built on top of CartoDB Dark basemaps for contrast and clarity.
-- **Mock Data Visualizations**:
-  - **Current NB Geology:** Existing terrane boundaries based on survey data (Polygons).
-  - **AI-Predicted Contacts:** Stylized models representing the outputs of a deep learning segmentation network like U-Net (Dashed Lines).
-  - **Revision Priority:** Highlighted structural conflict zones displaying where AI predictions most strongly conflict with current geology (Polygons/Heatmaps).
+- **Mock Data Visualizations (Geological Boundaries)**: 
+  *Note: All boundaries shown in this dashboard represent **geological bedrock contacts** (where one rock unit/terrane ends and another begins), not geographical or political borders (county lines, city limits).*
+  - **Current NB Geology:** Existing geological terrane boundaries based on current mapping and understanding (Polygons).
+  - **AI-Predicted Contacts:** Stylized models representing the outputs of a deep learning segmentation network like U-Net showing where the AI predicts the true rock boundaries actually are (Dashed Lines).
+  - **Revision Priority:** Highlighted structural conflict zones displaying where AI predictions most strongly disagree with the hand-drawn geological boundary, suggesting geologists need to ground-truth that area (Polygons/Heatmaps).
   - **Uncertainty Map:** Gradient spatial data simulating Monte Carlo Dropout inference values for probabilistic risk.
 - **Dynamic CSS**: Custom tooltip styles, toggle switches, map legends, and real-time styled interactive layers.
 
