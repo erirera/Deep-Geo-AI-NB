@@ -91,7 +91,7 @@ const geologyStyle = (feature) => ({
 const layerGeology = L.geoJSON(geologyData, {
     style: geologyStyle,
     onEachFeature: (feature, layer) => {
-        // Add permanent text label to the center of the polygon
+        // ... (tooltips and markers) ...
         if (feature.properties.center) {
             L.marker([feature.properties.center[1], feature.properties.center[0]], {
                 icon: L.divIcon({
@@ -122,7 +122,9 @@ const layerGeology = L.geoJSON(geologyData, {
             }
         });
     }
-}).addTo(map);
+});
+// Add default layers
+layerGeology.addTo(map);
 
 
 // 2. AI Predicted Contacts (Lines)
@@ -169,7 +171,8 @@ const layerAIContacts = L.geoJSON(aiContactsData, {
             layerAIContacts.resetStyle(layer);
         });
     }
-}).addTo(map);
+});
+layerAIContacts.addTo(map);
 
 // 3. Revision Priority (High conflict areas - Polygons)
 function generateRevisionPriority() {
@@ -253,8 +256,19 @@ const toggles = {
     'layer-uncertainty': { layer: layerUncertainty, ds: 'uncertainty' }
 };
 
+// Also we need to sync the initial state of the checkboxes to the map
+// because some layes (Revision, Uncertainty) should NOT be displayed on load 
+// (unless the checkbox is checked, which by default in HTML they are not).
 Object.keys(toggles).forEach(id => {
     const checkbox = document.getElementById(id);
+    const { layer } = toggles[id];
+    // Sync initial state
+    if (checkbox.checked) {
+        if (!map.hasLayer(layer)) map.addLayer(layer);
+    } else {
+        if (map.hasLayer(layer)) map.removeLayer(layer);
+    }
+    
     checkbox.addEventListener('change', (e) => {
         const { layer, ds } = toggles[id];
         
