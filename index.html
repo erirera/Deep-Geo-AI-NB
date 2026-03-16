@@ -19,19 +19,23 @@
     <div id="app">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="ri-braces-line"></i> DeepGeo AI</h2>
-                <p>New Brunswick Contact Mapper</p>
+                <h2><i class="ri-article-line"></i> Proposal 2</h2>
+                <p>Automated Geological Contact Mapping</p>
             </div>
             
             <div class="sidebar-content">
+                <div class="info-panel" style="margin-bottom: 20px; background: rgba(0, 229, 255, 0.05); border-color: rgba(0, 229, 255, 0.3);">
+                    <p style="font-size: 0.85rem; line-height: 1.5;"><strong>Objective:</strong> Train a deep learning segmentation model to predict lithological contacts from multi-channel gridded geophysical data to support NB mapping.</p>
+                </div>
+
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <span class="metric-label">Processed Area</span>
-                        <span class="metric-value">72,908 <small>km&sup2;</small></span>
+                        <span class="metric-label">Project Status</span>
+                        <span class="metric-value" style="font-size: 1.2rem; color: var(--accent-warning);">Proposed</span>
                     </div>
                     <div class="metric-card">
-                        <span class="metric-label">Predicted Contacts</span>
-                        <span class="metric-value">14,203</span>
+                        <span class="metric-label">Research Phase</span>
+                        <span class="metric-value" style="font-size: 1.2rem;">Months 12&ndash;18</span>
                     </div>
                 </div>
 
@@ -66,21 +70,21 @@
                 </div>
 
                 <div class="info-panel">
-                    <h3><i class="ri-information-line"></i> Model Inference Info</h3>
+                    <h3><i class="ri-test-tube-line"></i> Proposed Methodology</h3>
                     <ul class="info-list">
-                        <li><strong>Input:</strong> TMI, FVD, K%, Th, U</li>
-                        <li><strong>Resolution:</strong> 200m</li>
-                        <li><strong>Tile Size:</strong> 256x256</li>
-                        <li><strong>Loss Function:</strong> Dice + BCE</li>
+                        <li><strong>Model:</strong> Lightweight U-Net</li>
+                        <li><strong>Input:</strong> NRCan TMI, K%, Th, U</li>
+                        <li><strong>Output:</strong> Contact Boundary Prediction</li>
+                        <li><strong>Compute:</strong> Colab Pro (A100 GPU)</li>
                     </ul>
                 </div>
                 
                 <div class="actions">
                     <button class="btn btn-primary" id="btn-export">
-                        <i class="ri-download-cloud-2-line"></i> Export GeoPackage
+                        <i class="ri-file-download-line"></i> Download Proposal PDF
                     </button>
                     <button class="btn btn-secondary" id="btn-report">
-                        <i class="ri-file-chart-line"></i> Generate Report
+                        <i class="ri-github-fill"></i> View Training Code
                     </button>
                 </div>
             </div>
@@ -116,8 +120,8 @@
             
             <div class="map-overlay bottom-center">
                 <div class="glass-panel model-status">
-                    <div class="status-indicator active"></div>
-                    <span>Live Inference: <strong>Idle</strong> | Model: <strong>NB-UNet-v1.2</strong></span>
+                    <div class="status-indicator active" style="background: var(--accent-warning); box-shadow: 0 0 10px var(--accent-warning);"></div>
+                    <span>Interactive Concept | Target: <strong>Computers & Geosciences</strong></span>
                 </div>
             </div>
         </main>
