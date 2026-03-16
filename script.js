@@ -20,8 +20,30 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.p
     zIndex: 100
 }).addTo(map);
 
-// -- Mock Data Generation for New Brunswick --
-const nbBbox = [-69.0, 45.0, -63.8, 48.1];
+// Simple Seeded Random Number Generator (Mulberry32)
+function splitmix32(a) {
+    return function() {
+      a |= 0; a = a + 0x9e3779b9 | 0;
+      var t = a ^ a >>> 16; t = Math.imul(t, 0x21f0aaad);
+      t = t ^ t >>> 15; t = Math.imul(t, 0x735a2d97);
+      return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+    }
+}
+let seed = 12345;
+let seededRandom = splitmix32(seed);
+
+// Override turf's internal random usage with our seeded one if possible,
+// but turf.randomPoint uses Math.random internally. 
+// We'll reimplement randomPoint deterministically to fix polygons.
+function generateSeededPoints(count, bbox) {
+    const points = [];
+    for(let i=0; i<count; i++) {
+        const x = bbox[0] + seededRandom() * (bbox[2] - bbox[0]);
+        const y = bbox[1] + seededRandom() * (bbox[3] - bbox[1]);
+        points.push(turf.point([x, y]));
+    }
+    return turf.featureCollection(points);
+}
 
 const terraneNames = [
     'Miramichi Terrane', 'Elmtree Inlier', 'Tetagouche Group', 'Fournier Group',
@@ -32,7 +54,8 @@ const terraneNames = [
 
 // 1. Current NB Geology (Polygons)
 function generateGeologyPolygons() {
-    const points = turf.randomPoint(15, {bbox: nbBbox});
+    seededRandom = splitmix32(12345); // Reset seed for determinism
+    const points = generateSeededPoints(15, nbBbox);
     const voronoi = turf.voronoi(points, {bbox: nbBbox});
     
     // Assign random colors/properties
@@ -104,6 +127,7 @@ const layerGeology = L.geoJSON(geologyData, {
 
 // 2. AI Predicted Contacts (Lines)
 function generateAIContacts(voronoiFeatures) {
+    seededRandom = splitmix32(54321); // Reset seed
     const lines = [];
     voronoiFeatures.forEach(f => {
         if (!f) return;
@@ -111,14 +135,14 @@ function generateAIContacts(voronoiFeatures) {
         const newCoords = coords.map((c, i) => {
             if (i % 2 === 0) {
                 return [
-                    c[0] + (Math.random() - 0.5) * 0.05,
-                    c[1] + (Math.random() - 0.5) * 0.05
+                    c[0] + (seededRandom() - 0.5) * 0.05,
+                    c[1] + (seededRandom() - 0.5) * 0.05
                 ];
             }
             return c;
         });
         
-        lines.push(turf.lineString(newCoords, { model: 'U-Net v1.2', confidence: Math.random() }));
+        lines.push(turf.lineString(newCoords, { model: 'U-Net v1.2', confidence: seededRandom() }));
     });
     return turf.featureCollection(lines);
 }
@@ -149,17 +173,18 @@ const layerAIContacts = L.geoJSON(aiContactsData, {
 
 // 3. Revision Priority (High conflict areas - Polygons)
 function generateRevisionPriority() {
+    seededRandom = splitmix32(98765); // Reset seed
     const polygons = [];
     for(let i=0; i<8; i++) {
         const center = [
-            nbBbox[0] + Math.random() * (nbBbox[2] - nbBbox[0]),
-            nbBbox[1] + Math.random() * (nbBbox[3] - nbBbox[1])
+            nbBbox[0] + seededRandom() * (nbBbox[2] - nbBbox[0]),
+            nbBbox[1] + seededRandom() * (nbBbox[3] - nbBbox[1])
         ];
-        const priorityScore = Math.random();
+        const priorityScore = seededRandom();
         // Base size on the priority score: higher score = larger polygon (between 5km and 25km radius)
         const radius = (priorityScore * 20) + 5; 
         const poly = turf.circle(center, radius, {steps: 8, units: 'kilometers'});
-        const jagged = turf.transformScale(poly, Math.random() * 0.5 + 0.8);
+        const jagged = turf.transformScale(poly, seededRandom() * 0.5 + 0.8);
         jagged.properties = { priority: priorityScore };
         polygons.push(jagged);
     }
@@ -191,18 +216,19 @@ const layerRevision = generateHeatmapLayer(revisionData, '#FF4081', 0.6);
 
 // 4. Uncertainty Heatmap
 function createUncertaintyHeatmap() {
+    seededRandom = splitmix32(112233); // Reset seed
     const layerGroup = L.layerGroup();
-    const points = turf.randomPoint(150, {bbox: nbBbox});
+    const points = generateSeededPoints(150, nbBbox);
     
     points.features.forEach(f => {
         const coord = f.geometry.coordinates;
-        const val = Math.random();
+        const val = seededRandom();
         
         const color = val > 0.8 ? '#FF4081' : val > 0.5 ? '#FFB300' : 'transparent';
         
         if (color !== 'transparent') {
             L.circle([coord[1], coord[0]], {
-                radius: (Math.random() * 8000 + 4000), // radius in meters
+                radius: (seededRandom() * 8000 + 4000), // radius in meters
                 fillColor: color,
                 color: 'transparent',
                 fillOpacity: (val - 0.4) * 0.8
