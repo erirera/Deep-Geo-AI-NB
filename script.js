@@ -1,0 +1,268 @@
+// Map Initialization
+// Centered roughly on New Brunswick
+const map = L.map('map', {
+    zoomControl: false 
+}).setView([46.5653, -66.4619], 7);
+
+L.control.zoom({
+    position: 'bottomright'
+}).addTo(map);
+
+// Add Dark CartoDB basemap
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    subdomains: 'abcd',
+    maxZoom: 20
+}).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+    pane: 'overlayPane',
+    zIndex: 100
+}).addTo(map);
+
+// -- Mock Data Generation for New Brunswick --
+const nbBbox = [-69.0, 45.0, -63.8, 48.1];
+
+// 1. Current NB Geology (Polygons)
+function generateGeologyPolygons() {
+    const points = turf.randomPoint(15, {bbox: nbBbox});
+    const voronoi = turf.voronoi(points, {bbox: nbBbox});
+    
+    // Assign random colors/properties
+    voronoi.features.forEach((f, i) => {
+        if(f) {
+            f.properties = {
+                id: i,
+                terrane: `Terrane ${String.fromCharCode(65 + (i % 5))}`,
+                color: `hsl(${(i * 45) % 360}, 50%, 40%)`
+            };
+        }
+    });
+    return voronoi;
+}
+
+const geologyData = generateGeologyPolygons();
+
+const geologyStyle = (feature) => ({
+    fillColor: feature.properties.color,
+    weight: 1,
+    opacity: 0.4,
+    color: '#ffffff',
+    fillOpacity: 0.2
+});
+
+const layerGeology = L.geoJSON(geologyData, {
+    style: geologyStyle,
+    onEachFeature: (feature, layer) => {
+        layer.bindTooltip(`<b>${feature.properties.terrane}</b><br>Existing Survey`, {
+            sticky: true,
+            className: 'custom-tooltip'
+        });
+        
+        layer.on({
+            mouseover: (e) => {
+                const layer = e.target;
+                layer.setStyle({
+                    fillOpacity: 0.4,
+                    weight: 2
+                });
+            },
+            mouseout: (e) => {
+                layerGeology.resetStyle(e.target);
+            }
+        });
+    }
+}).addTo(map);
+
+
+// 2. AI Predicted Contacts (Lines)
+function generateAIContacts(voronoiFeatures) {
+    const lines = [];
+    voronoiFeatures.forEach(f => {
+        if (!f) return;
+        const coords = f.geometry.coordinates[0];
+        const newCoords = coords.map((c, i) => {
+            if (i % 2 === 0) {
+                return [
+                    c[0] + (Math.random() - 0.5) * 0.05,
+                    c[1] + (Math.random() - 0.5) * 0.05
+                ];
+            }
+            return c;
+        });
+        
+        lines.push(turf.lineString(newCoords, { model: 'U-Net v1.2', confidence: Math.random() }));
+    });
+    return turf.featureCollection(lines);
+}
+
+const aiContactsData = generateAIContacts(geologyData.features);
+
+const layerAIContacts = L.geoJSON(aiContactsData, {
+    style: (feature) => ({
+        color: '#00E5FF',
+        weight: 3,
+        opacity: 0.8,
+        dashArray: '5, 5'
+    }),
+    onEachFeature: (feature, layer) => {
+        layer.bindTooltip(`<b>AI Predicted Contact</b><br>Confidence: ${(feature.properties.confidence * 100).toFixed(1)}%`, {
+            sticky: true,
+            className: 'custom-tooltip'
+        });
+        
+        layer.on('mouseover', () => {
+            layer.setStyle({ weight: 5, color: '#FFFFFF', opacity: 1 });
+        });
+        layer.on('mouseout', () => {
+            layerAIContacts.resetStyle(layer);
+        });
+    }
+}).addTo(map);
+
+// 3. Revision Priority (High conflict areas - Polygons)
+function generateRevisionPriority() {
+    const polygons = [];
+    for(let i=0; i<8; i++) {
+        const center = [
+            nbBbox[0] + Math.random() * (nbBbox[2] - nbBbox[0]),
+            nbBbox[1] + Math.random() * (nbBbox[3] - nbBbox[1])
+        ];
+        const poly = turf.circle(center, Math.random() * 15 + 5, {steps: 8, units: 'kilometers'});
+        const jagged = turf.transformScale(poly, Math.random() * 0.5 + 0.8);
+        jagged.properties = { priority: Math.random() };
+        polygons.push(jagged);
+    }
+    return turf.featureCollection(polygons);
+}
+
+const revisionData = generateRevisionPriority();
+const generateHeatmapLayer = (data, weightColor, opacityMult) => {
+     let layerGroup = L.layerGroup();
+     data.features.forEach(f => {
+        const p = f.properties.priority * opacityMult;
+        L.geoJSON(f, {
+            style: {
+                fillColor: weightColor,
+                weight: 0,
+                fillOpacity: p
+            },
+            onEachFeature: (feature, layer) => {
+                 layer.bindTooltip(`<b>Revision Priority</b><br>Score: ${(f.properties.priority * 10).toFixed(1)}/10`, {
+                     sticky: true,
+                     className: 'custom-tooltip'
+                 });
+            }
+        }).addTo(layerGroup);
+     });
+     return layerGroup;
+};
+const layerRevision = generateHeatmapLayer(revisionData, '#FF4081', 0.6);
+
+// 4. Uncertainty Heatmap
+function createUncertaintyHeatmap() {
+    const layerGroup = L.layerGroup();
+    const points = turf.randomPoint(150, {bbox: nbBbox});
+    
+    points.features.forEach(f => {
+        const coord = f.geometry.coordinates;
+        const val = Math.random();
+        
+        const color = val > 0.8 ? '#FF4081' : val > 0.5 ? '#FFB300' : 'transparent';
+        
+        if (color !== 'transparent') {
+            L.circle([coord[1], coord[0]], {
+                radius: (Math.random() * 8000 + 4000), // radius in meters
+                fillColor: color,
+                color: 'transparent',
+                fillOpacity: (val - 0.4) * 0.8
+            }).bindTooltip(`<b>Uncertainty</b><br>Score: ${(val*10).toFixed(1)}/10`, {
+                sticky: true,
+                className: 'custom-tooltip'
+            }).addTo(layerGroup);
+        }
+    });
+    
+    return layerGroup;
+}
+const layerUncertainty = createUncertaintyHeatmap();
+
+
+// -- Interactivity & UI Logic --
+
+const toggles = {
+    'layer-geology': { layer: layerGeology, ds: 'geology' },
+    'layer-ai-contacts': { layer: layerAIContacts, ds: 'ai-contacts' },
+    'layer-revision': { layer: layerRevision, ds: 'revision' },
+    'layer-uncertainty': { layer: layerUncertainty, ds: 'uncertainty' }
+};
+
+Object.keys(toggles).forEach(id => {
+    const checkbox = document.getElementById(id);
+    checkbox.addEventListener('change', (e) => {
+        const { layer, ds } = toggles[id];
+        
+        if (e.target.checked) {
+            map.addLayer(layer);
+        } else {
+            map.removeLayer(layer);
+        }
+        
+        const legItem = document.querySelector(`.legend-item[data-layer="${ds}"]`);
+        if (legItem) {
+            legItem.style.display = e.target.checked ? 'flex' : 'none';
+        }
+    });
+});
+
+// CSS for Custom Tooltip
+const style = document.createElement('style');
+style.innerHTML = `
+    .custom-tooltip.leaflet-tooltip {
+        background: rgba(15, 17, 21, 0.9);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #f0f2f5;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        font-family: 'Inter', sans-serif;
+    }
+    .custom-tooltip.leaflet-tooltip b {
+        color: #00E5FF;
+    }
+    .custom-tooltip.leaflet-tooltip-top:before, 
+    .custom-tooltip.leaflet-tooltip-bottom:before, 
+    .custom-tooltip.leaflet-tooltip-left:before, 
+    .custom-tooltip.leaflet-tooltip-right:before {
+        display: none;
+    }
+`;
+document.head.appendChild(style);
+
+// Button actions
+document.getElementById('btn-export').addEventListener('click', () => {
+    const btn = document.getElementById('btn-export');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Exporting...';
+    btn.style.opacity = '0.8';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="ri-check-line"></i> Export Complete';
+        btn.style.opacity = '1';
+        setTimeout(() => btn.innerHTML = original, 2000);
+    }, 1500);
+});
+
+document.getElementById('btn-report').addEventListener('click', () => {
+    alert('Generating report for New Brunswick Geological Mapping...');
+});
+
+// Animate metrics on load
+document.querySelectorAll('.metric-value').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    setTimeout(() => {
+        el.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+    }, Math.random() * 500 + 300);
+});

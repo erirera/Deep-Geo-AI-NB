@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Geoscience Dashboard | Proposal 2</title>
+    <meta name="description" content="Automated Geological Contact Mapping using Deep Learning in New Brunswick.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="ri-braces-line"></i> DeepGeo AI</h2>
+                <p>New Brunswick Contact Mapper</p>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Processed Area</span>
+                        <span class="metric-value">72,908 <small>km&sup2;</small></span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Predicted Contacts</span>
+                        <span class="metric-value">14,203</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3><i class="ri-layers-3-line"></i> Map Layers</h3>
+                    
+                    <label class="toggle-control">
+                        <input type="checkbox" id="layer-geology" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Current NB Geology</span>
+                    </label>
+
+                    <label class="toggle-control">
+                        <input type="checkbox" id="layer-ai-contacts" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">AI-Predicted Contacts</span>
+                        <span class="badge badge-primary">U-Net</span>
+                    </label>
+
+                    <label class="toggle-control">
+                        <input type="checkbox" id="layer-revision">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Revision Priority</span>
+                    </label>
+
+                    <label class="toggle-control">
+                        <input type="checkbox" id="layer-uncertainty">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Uncertainty Map</span>
+                        <span class="badge badge-warning">MC Dropout</span>
+                    </label>
+                </div>
+
+                <div class="info-panel">
+                    <h3><i class="ri-information-line"></i> Model Inference Info</h3>
+                    <ul class="info-list">
+                        <li><strong>Input:</strong> TMI, FVD, K%, Th, U</li>
+                        <li><strong>Resolution:</strong> 200m</li>
+                        <li><strong>Tile Size:</strong> 256x256</li>
+                        <li><strong>Loss Function:</strong> Dice + BCE</li>
+                    </ul>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" id="btn-export">
+                        <i class="ri-download-cloud-2-line"></i> Export GeoPackage
+                    </button>
+                    <button class="btn btn-secondary" id="btn-report">
+                        <i class="ri-file-chart-line"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="map-container">
+            <div id="map"></div>
+            
+            <div class="map-overlay top-right">
+                <div class="glass-panel map-legend" id="legend">
+                    <h4>Legend</h4>
+                    <div class="legend-item" data-layer="geology">
+                        <span class="color-box" style="background: rgba(100, 150, 200, 0.4); border: 1px solid #6496C8;"></span>
+                        <span>Existing Terranes</span>
+                    </div>
+                    <div class="legend-item" data-layer="ai-contacts">
+                        <span class="line-box" style="border-bottom: 2px solid #00E5FF;"></span>
+                        <span>AI Contact Boundary</span>
+                    </div>
+                    <div class="legend-item" data-layer="revision" style="display: none;">
+                        <span class="color-box" style="background: rgba(255, 64, 129, 0.6);"></span>
+                        <span>High Priority Revision</span>
+                    </div>
+                    <div class="legend-item" data-layer="uncertainty" style="display: none;">
+                        <div class="gradient-box"></div>
+                        <div class="gradient-labels">
+                            <span>Low</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-overlay bottom-center">
+                <div class="glass-panel model-status">
+                    <div class="status-indicator active"></div>
+                    <span>Live Inference: <strong>Idle</strong> | Model: <strong>NB-UNet-v1.2</strong></span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Turf.js for mock data generation -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
