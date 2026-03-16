@@ -128,9 +128,12 @@ function generateRevisionPriority() {
             nbBbox[0] + Math.random() * (nbBbox[2] - nbBbox[0]),
             nbBbox[1] + Math.random() * (nbBbox[3] - nbBbox[1])
         ];
-        const poly = turf.circle(center, Math.random() * 15 + 5, {steps: 8, units: 'kilometers'});
+        const priorityScore = Math.random();
+        // Base size on the priority score: higher score = larger polygon (between 5km and 25km radius)
+        const radius = (priorityScore * 20) + 5; 
+        const poly = turf.circle(center, radius, {steps: 8, units: 'kilometers'});
         const jagged = turf.transformScale(poly, Math.random() * 0.5 + 0.8);
-        jagged.properties = { priority: Math.random() };
+        jagged.properties = { priority: priorityScore };
         polygons.push(jagged);
     }
     return turf.featureCollection(polygons);

@@ -6,15 +6,6 @@ An interactive web dashboard for **Proposal 2: Automated Geological Contact Mapp
 
 New Brunswick's bedrock geology continues to be revised as new geophysical surveys and geochronological data emerge. This dashboard is a proof-of-concept visualizer for a deep learning workflow (such as a Lightweight U-Net) that predicts lithological contact locations from multi-channel gridded geophysical data (TMI, Radiometrics, Gravity). 
 
-The boundaries shown in the dashboard represent **geological boundaries** (specifically, the contacts between different rock units or geological terranes), not geographical/political boundaries like county lines or city limits.
-
-In the context of Proposal 2 ("Automated Geological Contact Mapping"), the deep learning model (U-Net) is analyzing airborne geophysical data (magnetics, radiometrics, etc.) to detect where one type of bedrock ends and another begins beneath the surface. 
-
-Here is what the specific layers represent geologically:
-1.  **Existing Terranes (Colored Polygons):** This represents the *current* understanding of New Brunswick's bedrock geology, mapped out by geologists over the years.
-2.  **AI Contact Boundaries (Cyan Dashed Lines):** This represents where the AI *predicts* the true rock boundaries actually are, based purely on the physical properties measured by the airborne surveys.
-3.  **Revision Priority (Pink Highlights):** These are zones where the AI's predicted geological boundary significantly disagrees with the old, hand-drawn geological boundary, suggesting geologists need to go back and check that specific area.
-
 The goal is to automatically identify zones where current geology maps might be incorrect and support the NB Geological Survey Branch's mapping program.
 
 ## Features Included
