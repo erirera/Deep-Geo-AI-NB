@@ -23,6 +23,13 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.p
 // -- Mock Data Generation for New Brunswick --
 const nbBbox = [-69.0, 45.0, -63.8, 48.1];
 
+const terraneNames = [
+    'Miramichi Terrane', 'Elmtree Inlier', 'Tetagouche Group', 'Fournier Group',
+    'Chaleur Bay Synclinorium', 'Fredericton Cover Sequence', 'Mascarene Group',
+    'Avalon Terrane', 'Caledonia Highlands', 'Kingston Terrane', 'Brookville Terrane',
+    'New River Belt', 'St. Croix Terrane', 'Annidale Group', 'Ganderia'
+];
+
 // 1. Current NB Geology (Polygons)
 function generateGeologyPolygons() {
     const points = turf.randomPoint(15, {bbox: nbBbox});
@@ -33,9 +40,16 @@ function generateGeologyPolygons() {
         if(f) {
             f.properties = {
                 id: i,
-                terrane: `Terrane ${String.fromCharCode(65 + (i % 5))}`,
-                color: `hsl(${(i * 45) % 360}, 50%, 40%)`
+                terrane: terraneNames[i % terraneNames.length],
+                color: `hsl(${(i * 45) % 360}, 50%, 40%)`,
+                center: f.geometry.coordinates[0][0] // fallback for centroid
             };
+            
+            // calculate real centroid for label placement
+            try {
+                const centroid = turf.centroid(f);
+                f.properties.center = centroid.geometry.coordinates;
+            } catch (e) {}
         }
     });
     return voronoi;
@@ -54,6 +68,19 @@ const geologyStyle = (feature) => ({
 const layerGeology = L.geoJSON(geologyData, {
     style: geologyStyle,
     onEachFeature: (feature, layer) => {
+        // Add permanent text label to the center of the polygon
+        if (feature.properties.center) {
+            L.marker([feature.properties.center[1], feature.properties.center[0]], {
+                icon: L.divIcon({
+                    className: 'terrane-label',
+                    html: `<div>${feature.properties.terrane}</div>`,
+                    iconSize: [120, 20],
+                    iconAnchor: [60, 10]
+                }),
+                interactive: false // Let clicks pass through to the polygon
+            }).addTo(map);
+        }
+
         layer.bindTooltip(`<b>${feature.properties.terrane}</b><br>Existing Survey`, {
             sticky: true,
             className: 'custom-tooltip'
