@@ -239,23 +239,6 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// Button actions
-document.getElementById('btn-export').addEventListener('click', () => {
-    const btn = document.getElementById('btn-export');
-    const original = btn.innerHTML;
-    btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Downloading PDF...';
-    btn.style.opacity = '0.8';
-    setTimeout(() => {
-        btn.innerHTML = '<i class="ri-check-line"></i> Download Complete';
-        btn.style.opacity = '1';
-        setTimeout(() => btn.innerHTML = original, 2000);
-    }, 1500);
-});
-
-document.getElementById('btn-report').addEventListener('click', () => {
-    alert('Redirecting to the hypothetical Google Colab Pro / GitHub repository for the U-Net training pipeline...');
-});
-
 // Animate metrics on load
 document.querySelectorAll('.metric-value').forEach(el => {
     el.style.opacity = '0';
