@@ -32,6 +32,9 @@ function splitmix32(a) {
 let seed = 12345;
 let seededRandom = splitmix32(seed);
 
+// -- Mock Data Generation for New Brunswick --
+const nbBbox = [-69.0, 45.0, -63.8, 48.1];
+
 // Override turf's internal random usage with our seeded one if possible,
 // but turf.randomPoint uses Math.random internally. 
 // We'll reimplement randomPoint deterministically to fix polygons.
