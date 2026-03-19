@@ -14,10 +14,11 @@ The goal is to automatically identify zones where current geology maps might be 
 - **Interactive Leaflet Map**: Built on top of CartoDB Dark basemaps for contrast and clarity.
 - **Mock Data Visualizations (Geological Boundaries)**: 
   *Note: All boundaries shown in this dashboard represent **geological bedrock contacts** (where one rock unit/terrane ends and another begins), not geographical or political borders (county lines, city limits).*
-  - **Current NB Geology:** Existing geological terrane boundaries based on current mapping and understanding (Polygons).
+  - **Current NB Geology:** Existing geological terrane polygons, explicitly labeled with actual NB geological names (e.g., Miramichi Terrane, Tetagouche Group) mapped to the center of each region.
   - **AI-Predicted Contacts:** Stylized models representing the outputs of a deep learning segmentation network like U-Net showing where the AI predicts the true rock boundaries actually are (Dashed Lines).
-  - **Revision Priority:** Highlighted structural conflict zones displaying where AI predictions most strongly disagree with the hand-drawn geological boundary, suggesting geologists need to ground-truth that area (Polygons/Heatmaps).
+  - **Revision Priority:** Highlighted structural conflict zones displaying where AI predictions most strongly disagree with the hand-drawn geological boundary, suggesting geologists need to ground-truth that area. The physical size of these polygons directly reflects the magnitude of the AI conflict score (Polygons/Heatmaps).
   - **Uncertainty Map:** Gradient spatial data simulating Monte Carlo Dropout inference values for probabilistic risk.
+- **Deterministic Map Generation:** All map features (polygons, contacts, heatmaps) are procedurally generated using a seeded random number generator (Mulberry32). This guarantees that the mock visualizations render in the exact same position on every device and page refresh.
 - **Dynamic CSS**: Custom tooltip styles, toggle switches, map legends, and real-time styled interactive layers.
 
 ## Technologies Used
