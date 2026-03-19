@@ -12,6 +12,6 @@ Key features of this interactive concept include:
 
 Best part? It’s completely client-side. The dashboard uses Vanilla JS, Leaflet.js, and Turf.js with deterministic sequence seeding to render simulated outputs cleanly right in the browser—no backend required.
 
-Check out the source code and proposal here: [Insert Link to Repo]
+Check out the proposal here: https://erirera.github.io/Deep-Geo-AI-NB/
 
 #Geology #ArtificialIntelligence #MachineLearning #Geoscience #DataVisualization #NewBrunswick #WebDevelopment #DeepLearning
