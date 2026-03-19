@@ -1,6 +1,6 @@
 Excited to share a proof-of-concept AI Geoscience Dashboard I've been working on! 🌍⛏️
 
-As part of a research proposal for **Automated Geological Contact Mapping**, this interactive web dashboard visualizes the potential outputs of a deep learning model (like a U-Net) applied to airborne geophysical data across New Brunswick.
+As part of a research proposal for **Deep Learning Segmentation of Airborne Geophysical Data for Lithological Mapping in NB**, this interactive web dashboard visualizes the potential outputs of a deep learning model (like a U-Net) applied to airborne geophysical data across New Brunswick.
 
 The goal? To automatically identify zones where current bedrock geology maps might be incorrect so geologists know exactly where to prioritize their ground-truthing efforts.
 
