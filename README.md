@@ -4,7 +4,7 @@ An interactive web dashboard for **Proposal 2: Automated Geological Contact Mapp
 
 ## Overview
 
-New Brunswick's bedrock geology continues to be revised as new geophysical surveys and geochronological data emerge. This dashboard is a proof-of-concept visualizer for a deep learning workflow (such as a Lightweight U-Net) that predicts lithological contact locations from multi-channel gridded geophysical data (TMI, Radiometrics, Gravity). 
+New Brunswick's bedrock geology continues to be revised as new geophysical surveys and geochronological data emerge. This dashboard https://erirera.github.io/Deep-Geo-AI-NB/ is a proof-of-concept visualizer for a deep learning workflow (such as a Lightweight U-Net) that predicts lithological contact locations from multi-channel gridded geophysical data (TMI, Radiometrics, Gravity). 
 
 The goal is to automatically identify zones where current geology maps might be incorrect and support the NB Geological Survey Branch's mapping program.
 
@@ -49,3 +49,9 @@ To customize the visual theme, gradients, or typography, edit `styles.css`.
 - Import an actual GeoJSON of the NB Bedrock Geology layer.
 - Integrate real Python/PyTorch inference data.
 - Refactor the code to use React, Vue, or Next.js for more complex state management if the dashboard expands beyond a single view.
+
+## Author
+
+**Dele Falebita, PhD** — GIT APEGNB & Data Scientist  
+[github.com/erirera](https://github.com/erirera) | Moncton, New Brunswick, Canada  
+20+ years experience in geo-resource exploration, geostatistics, and geophysical data analysis.
